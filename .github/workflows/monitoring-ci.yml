@@ -1,0 +1,25 @@
+name: Docker Monitoring CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  docker-compose-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Docker
+      uses: docker-practice/actions-setup-docker@v1
+
+    - name: Check docker-compose config
+      run: docker compose config
+
+    - name: Run docker-compose (test)
+      run: docker compose up -d && sleep 15 && docker compose ps
+
+    - name: Stop services
+      run: docker compose down
