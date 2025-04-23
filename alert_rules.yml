@@ -1,0 +1,30 @@
+groups:
+  - name: node_exporter_alerts
+    rules:
+
+      - alert: NodeExporterDown
+        expr: up{job="node"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node Exporter недоступен"
+          description: "Экспортер перестал отвечать на {{ $labels.instance }}"
+
+      - alert: LowMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Мало оперативной памяти"
+          description: "На {{ $labels.instance }} осталось менее 10% оперативной памяти"
+
+      - alert: DiskAlmostFull
+        expr: (node_filesystem_size_bytes{fstype!="tmpfs",mountpoint="/"} - node_filesystem_avail_bytes{fstype!="tmpfs",mountpoint="/"}) / node_filesystem_size_bytes{fstype!="tmpfs",mountpoint="/"} > 0.9
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Диск почти заполнен"
+          description: "На {{ $labels.instance }} диск заполнен более чем на 90%"
